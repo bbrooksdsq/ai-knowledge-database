@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from .core.config import settings
 from .api import documents
 import os
@@ -21,9 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 # Include routers
 app.include_router(
     documents.router,
@@ -31,19 +27,57 @@ app.include_router(
     tags=["documents"]
 )
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
     """Serve the frontend index.html"""
     try:
         static_path = os.path.join("static", "index.html")
         if os.path.exists(static_path):
-            return FileResponse(static_path)
+            return FileResponse(static_path, media_type="text/html")
         else:
-            # Fallback to API response if static files not found
-            return {"message": "AI Knowledge Base API", "version": "1.0.0", "status": "static files not found"}
+            # Fallback HTML response
+            return HTMLResponse("""
+            <html>
+                <head><title>AI Knowledge Base</title></head>
+                <body>
+                    <h1>AI Knowledge Base API</h1>
+                    <p>Version 1.0.0</p>
+                    <p>Static files not found</p>
+                    <p><a href="/docs">API Documentation</a></p>
+                </body>
+            </html>
+            """)
     except Exception as e:
-        # Fallback to API response on any error
-        return {"message": "AI Knowledge Base API", "version": "1.0.0", "error": str(e)}
+        # Fallback HTML response on any error
+        return HTMLResponse(f"""
+        <html>
+            <head><title>AI Knowledge Base</title></head>
+            <body>
+                <h1>AI Knowledge Base API</h1>
+                <p>Version 1.0.0</p>
+                <p>Error: {str(e)}</p>
+                <p><a href="/docs">API Documentation</a></p>
+            </body>
+        </html>
+        """)
+
+@app.get("/_next/{file_path:path}")
+async def serve_next_assets(file_path: str):
+    """Serve Next.js static assets"""
+    static_path = os.path.join("static", "_next", file_path)
+    if os.path.exists(static_path):
+        return FileResponse(static_path)
+    else:
+        return {"error": "File not found"}
+
+@app.get("/404")
+async def serve_404():
+    """Serve 404 page"""
+    static_path = os.path.join("static", "404.html")
+    if os.path.exists(static_path):
+        return FileResponse(static_path, media_type="text/html")
+    else:
+        return HTMLResponse("<h1>404 Not Found</h1>")
 
 @app.get("/health")
 async def health_check():
