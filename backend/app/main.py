@@ -34,11 +34,16 @@ app.include_router(
 @app.get("/")
 async def serve_frontend():
     """Serve the frontend index.html"""
-    static_path = os.path.join("static", "index.html")
-    if os.path.exists(static_path):
-        return FileResponse(static_path)
-    else:
-        return {"message": "AI Knowledge Base API", "version": "1.0.0"}
+    try:
+        static_path = os.path.join("static", "index.html")
+        if os.path.exists(static_path):
+            return FileResponse(static_path)
+        else:
+            # Fallback to API response if static files not found
+            return {"message": "AI Knowledge Base API", "version": "1.0.0", "status": "static files not found"}
+    except Exception as e:
+        # Fallback to API response on any error
+        return {"message": "AI Knowledge Base API", "version": "1.0.0", "error": str(e)}
 
 @app.get("/health")
 async def health_check():
