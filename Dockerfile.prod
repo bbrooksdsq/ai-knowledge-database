@@ -6,8 +6,8 @@ COPY frontend/package*.json ./
 # Install all dependencies (including dev) for build step
 RUN npm ci
 COPY frontend/ ./
-# Build and export static site for nginx to serve
-RUN npm run build && npx next export -o out
+# Build (Next will export static files due to output: 'export')
+RUN npm run build
 
 FROM python:3.11-slim AS backend
 
@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ .
 
-# Copy built frontend
+# Copy exported frontend
 COPY --from=frontend-builder /app/frontend/out ./static
 
 # Create uploads directory
