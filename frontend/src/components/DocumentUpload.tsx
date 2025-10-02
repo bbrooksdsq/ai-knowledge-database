@@ -30,8 +30,8 @@ export default function DocumentUpload() {
     setFiles(prev => [...prev, ...newFiles])
 
     // Simulate upload process
-    newFiles.forEach(uploadFile => {
-      uploadFile(uploadFile.id)
+    newFiles.forEach(fileItem => {
+      uploadFile(fileItem.id)
     })
   }
 
