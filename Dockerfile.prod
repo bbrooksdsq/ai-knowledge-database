@@ -7,7 +7,7 @@ COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
 # Build and export static site for nginx to serve
-RUN npm run build && npx next export -c next.config.prod.js -o out
+RUN npm run build && npx next export -o out
 
 FROM python:3.11-slim AS backend
 
