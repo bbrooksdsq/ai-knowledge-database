@@ -10,6 +10,9 @@ BACKEND_PID=$!
 # Wait for backend to start
 sleep 5
 
+# Ensure nginx uses our template (listens on 80 inside container)
+cp /etc/nginx/nginx.conf.template /etc/nginx/nginx.conf
+
 # Start nginx
 nginx -g "daemon off;" &
 NGINX_PID=$!
