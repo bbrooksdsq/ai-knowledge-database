@@ -8,8 +8,8 @@ http {
     }
 
     server {
-        # Railway maps external $PORT to container; nginx should listen on 80 inside
-        listen 80;
+        # Railway maps external $PORT to container; nginx should listen on $PORT
+        listen ${PORT};
         server_name _;
 
         # Serve static files from Next.js export
