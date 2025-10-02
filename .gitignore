@@ -86,3 +86,9 @@ alembic/versions/*.py
 # Temporary files
 *.tmp
 *.temp
+
+# Production files
+.env.production
+*.log
+uploads/
+
