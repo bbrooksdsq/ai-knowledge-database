@@ -53,39 +53,11 @@ async def startup_event():
 async def shutdown_event():
     logger.info("🛑 AI Knowledge Base API is shutting down...")
 
-@app.get("/", response_class=HTMLResponse)
-async def serve_frontend():
-    """Serve the frontend index.html"""
-    try:
-        static_path = os.path.join("static", "index.html")
-        if os.path.exists(static_path):
-            return FileResponse(static_path, media_type="text/html")
-        else:
-            # Fallback HTML response
-            return HTMLResponse("""
-            <html>
-                <head><title>AI Knowledge Base</title></head>
-                <body>
-                    <h1>AI Knowledge Base API</h1>
-                    <p>Version 1.0.0</p>
-                    <p>Static files not found</p>
-                    <p><a href="/docs">API Documentation</a></p>
-                </body>
-            </html>
-            """)
-    except Exception as e:
-        # Fallback HTML response on any error
-        return HTMLResponse(f"""
-        <html>
-            <head><title>AI Knowledge Base</title></head>
-            <body>
-                <h1>AI Knowledge Base API</h1>
-                <p>Version 1.0.0</p>
-                <p>Error: {str(e)}</p>
-                <p><a href="/docs">API Documentation</a></p>
-            </body>
-        </html>
-        """)
+@app.get("/")
+async def root():
+    """Simple root endpoint for testing"""
+    logger.info("Root endpoint requested")
+    return {"message": "AI Knowledge Base API", "version": "1.0.0", "status": "running"}
 
 @app.get("/_next/{file_path:path}")
 async def serve_next_assets(file_path: str):
@@ -107,7 +79,13 @@ async def serve_404():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    logger.info("Health check requested")
+    return {"status": "healthy", "port": os.environ.get("PORT", "unknown")}
+
+@app.get("/test")
+async def test_endpoint():
+    logger.info("Test endpoint requested")
+    return {"message": "Test successful", "static_files": os.path.exists("static/index.html")}
 
 if __name__ == "__main__":
     import uvicorn
