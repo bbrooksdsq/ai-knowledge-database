@@ -34,6 +34,10 @@ fi
 echo "🔧 Configuring nginx..."
 envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
+# Show the generated nginx config
+echo "📄 Generated nginx config:"
+cat /etc/nginx/nginx.conf
+
 # Test nginx config
 nginx -t
 if [ $? -ne 0 ]; then
