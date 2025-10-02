@@ -22,20 +22,22 @@
    - Click "New" → "Database" → "Redis"
    - Railway will provide `REDIS_URL`
 
-### Step 4: Configure Environment Variables
+### Step 4: Configure Environment Variables (SECURE METHOD)
 In your Railway project settings, add these environment variables:
 
-```bash
-# OpenAI API Key
-OPENAI_API_KEY=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
+**🔐 IMPORTANT: Never commit API keys to GitHub!**
 
-# Database (Railway will provide this)
+```bash
+# OpenAI API Key (Add your actual key here in Railway dashboard)
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY_HERE
+
+# Database (Railway will provide this automatically)
 DATABASE_URL=${{RAILWAY_DATABASE_URL}}
 
-# Redis (Railway will provide this)
+# Redis (Railway will provide this automatically)
 REDIS_URL=${{RAILWAY_REDIS_URL}}
 
-# Security (generate a random string)
+# Security (generate a random string like: openssl rand -hex 32)
 SECRET_KEY=your-super-secret-key-here
 
 # File Upload
@@ -46,11 +48,25 @@ MAX_FILE_SIZE=52428800
 API_V1_STR=/api/v1
 PROJECT_NAME=AI Knowledge Base
 
-# CORS (Railway will provide this)
+# CORS (Railway will provide this automatically)
 BACKEND_CORS_ORIGINS=${{RAILWAY_PUBLIC_DOMAIN}}
 ```
 
-### Step 5: Deploy
+### Step 5: Add Your OpenAI API Key Securely
+1. In Railway dashboard, go to your project
+2. Click on "Variables" tab
+3. Add new variable:
+   - **Name**: `OPENAI_API_KEY`
+   - **Value**: `YOUR_ACTUAL_API_KEY_FROM_OPENAI`
+4. Click "Add"
+
+**✅ This way your API key is:**
+- Never visible in your code
+- Never committed to GitHub
+- Only accessible to your deployed app
+- Secure and encrypted in Railway's system
+
+### Step 6: Deploy
 1. Railway will automatically build and deploy
 2. Your app will be available at: `https://your-app-name.railway.app`
 3. API docs at: `https://your-app-name.railway.app/docs`
@@ -76,7 +92,7 @@ BACKEND_CORS_ORIGINS=${{RAILWAY_PUBLIC_DOMAIN}}
    - Note the connection string
 
 ### Step 3: Environment Variables
-Set the same environment variables as Railway above.
+Set the same environment variables as Railway above, using Render's dashboard.
 
 ## Custom Domain (Optional)
 
@@ -148,16 +164,25 @@ Once deployed, share the URL with your team:
 2. Review API documentation at `/docs`
 3. Create an issue in the GitHub repository
 
-## Security Considerations
+## Security Best Practices
 
-### Production Checklist
-- [ ] Change default SECRET_KEY
+### ✅ What We're Doing Right
+- API keys stored as environment variables (never in code)
+- HTTPS enabled automatically
+- CORS properly configured
+- Database credentials managed by hosting platform
+
+### 🔒 Additional Security Recommendations
+- [ ] Change default SECRET_KEY to a random string
 - [ ] Set up proper CORS origins
-- [ ] Enable HTTPS (automatic with Railway/Render)
 - [ ] Regular database backups
 - [ ] Monitor API usage and costs
 - [ ] Set up error monitoring (Sentry, etc.)
+- [ ] Enable 2FA on your OpenAI account
+- [ ] Regularly rotate API keys
 
 ---
 
 **Your AI Knowledge Base is now live and accessible to your entire team! 🎉**
+
+**🔐 Your API key is secure and never exposed in your code!**
