@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Filter, Clock, FileText, Tag } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from './ui/button'
 
 interface SearchResult {
   document: {
