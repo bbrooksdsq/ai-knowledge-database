@@ -48,6 +48,7 @@ async def startup_event():
         logger.info("✅ Static files found")
     else:
         logger.warning("❌ Static files not found")
+    logger.info("🎉 Application is ready to accept requests!")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -80,7 +81,7 @@ async def serve_404():
 @app.get("/health")
 async def health_check():
     logger.info("Health check requested")
-    return {"status": "healthy", "port": os.environ.get("PORT", "unknown")}
+    return {"status": "healthy", "port": os.environ.get("PORT", "unknown"), "ready": True}
 
 @app.get("/test")
 async def test_endpoint():

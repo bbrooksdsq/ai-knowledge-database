@@ -10,8 +10,14 @@ logger = logging.getLogger(__name__)
 class AIService:
     def __init__(self):
         self.openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        # Fallback to local embeddings if OpenAI is not available
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        # Defer loading the embedding model until first use
+        self.embedding_model = None
+    
+    def _get_embedding_model(self):
+        """Lazy load the embedding model"""
+        if self.embedding_model is None:
+            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        return self.embedding_model
     
     async def generate_embedding(self, text: str) -> List[float]:
         """Generate embedding for text using OpenAI or local model"""
@@ -24,11 +30,13 @@ class AIService:
                 return response.data[0].embedding
             else:
                 # Use local model as fallback
-                embedding = self.embedding_model.encode(text)
+                model = self._get_embedding_model()
+                embedding = model.encode(text)
                 return embedding.tolist()
         except Exception as e:
             logger.warning(f"OpenAI embedding failed, using local model: {e}")
-            embedding = self.embedding_model.encode(text)
+            model = self._get_embedding_model()
+            embedding = model.encode(text)
             return embedding.tolist()
     
     async def generate_summary(self, text: str, max_length: int = 200) -> str:
