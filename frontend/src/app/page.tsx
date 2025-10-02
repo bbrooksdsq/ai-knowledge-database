@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { Search, Upload, FileText, Clock, Tag } from 'lucide-react'
-import SearchInterface from '@/components/SearchInterface'
-import DocumentUpload from '@/components/DocumentUpload'
-import RecentDocuments from '@/components/RecentDocuments'
+import SearchInterface from '../components/SearchInterface'
+import DocumentUpload from '../components/DocumentUpload'
+import RecentDocuments from '../components/RecentDocuments'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('search')
