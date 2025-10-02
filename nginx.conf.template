@@ -15,7 +15,7 @@ http {
         # Serve static files from Next.js export
         location / {
             root /app/static;
-            try_files $uri $uri.html $uri/index.html @backend;
+            try_files $uri $uri.html $uri/index.html /index.html;
         }
 
         # Proxy API requests to FastAPI backend

@@ -19,6 +19,17 @@ fi
 
 echo "✅ Backend started successfully"
 
+# Check if static files exist
+echo "📁 Checking static files..."
+if [ -f "/app/static/index.html" ]; then
+    echo "✅ Static files found:"
+    ls -la /app/static/
+else
+    echo "❌ Static files not found!"
+    echo "Contents of /app/static/:"
+    ls -la /app/static/ || echo "Directory does not exist"
+fi
+
 # Use envsubst to replace $PORT in nginx config template
 echo "🔧 Configuring nginx..."
 envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
