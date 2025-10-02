@@ -3,7 +3,7 @@ FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 COPY frontend/ ./
 # Build and export static site for nginx to serve
 RUN npm run build && npx next export -c next.config.prod.js -o out
