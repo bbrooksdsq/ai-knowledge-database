@@ -1,15 +1,28 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from .core.config import settings
 from .api import documents
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     description="AI-powered knowledge management system"
 )
+
+# Add request logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Request: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"Response: {response.status_code}")
+    return response
 
 # Set up CORS
 app.add_middleware(
@@ -26,6 +39,19 @@ app.include_router(
     prefix=f"{settings.API_V1_STR}/documents",
     tags=["documents"]
 )
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("🚀 AI Knowledge Base API is starting up...")
+    logger.info(f"Static files directory: {os.path.abspath('static')}")
+    if os.path.exists("static/index.html"):
+        logger.info("✅ Static files found")
+    else:
+        logger.warning("❌ Static files not found")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("🛑 AI Knowledge Base API is shutting down...")
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
