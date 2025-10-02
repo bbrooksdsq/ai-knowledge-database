@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from .core.config import settings
 from .api import documents
+import os
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -18,6 +21,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Include routers
 app.include_router(
     documents.router,
@@ -26,8 +32,13 @@ app.include_router(
 )
 
 @app.get("/")
-async def root():
-    return {"message": "AI Knowledge Base API", "version": "1.0.0"}
+async def serve_frontend():
+    """Serve the frontend index.html"""
+    static_path = os.path.join("static", "index.html")
+    if os.path.exists(static_path):
+        return FileResponse(static_path)
+    else:
+        return {"message": "AI Knowledge Base API", "version": "1.0.0"}
 
 @app.get("/health")
 async def health_check():
