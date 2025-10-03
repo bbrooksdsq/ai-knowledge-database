@@ -23,7 +23,7 @@ export default function RecentDocuments() {
 
   const fetchRecentDocuments = async () => {
     try {
-      const response = await fetch('/api/documents/?limit=20')
+      const response = await fetch('/api/v1/documents/?limit=20')
       if (response.ok) {
         const data = await response.json()
         setDocuments(data)

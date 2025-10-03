@@ -1,10 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
+from sqlalchemy.orm import Session
 from .core.config import settings
-from .core.database import engine
+from .core.database import engine, get_db
 from .models import document
+from .models.document import Document
 from .api import documents
+from .api.documents import process_document_ai
 import os
 import logging
 
@@ -131,6 +134,62 @@ async def test_endpoint():
 async def api_test():
     """Test API connectivity"""
     return {"status": "API working", "database": "connected", "openai": "configured"}
+
+@app.post("/api/test/document")
+async def create_test_document(db: Session = Depends(get_db)):
+    """Create a test document to demonstrate AI processing"""
+    try:
+        test_content = """
+        Project Alpha Meeting Notes - Q4 2024
+        
+        Attendees: Sarah Johnson, Mike Chen, Lisa Rodriguez, Tom Wilson
+        Date: October 15, 2024
+        Duration: 45 minutes
+        
+        Key Discussion Points:
+        1. Budget approval for Q1 2025 - $2.5M allocated for development
+        2. Timeline for mobile app launch - targeting March 2025
+        3. User research findings - 78% satisfaction rate with current features
+        4. Technical debt concerns - need to prioritize refactoring
+        5. New hire onboarding - 3 developers starting next week
+        
+        Action Items:
+        - Sarah: Prepare budget presentation for board meeting
+        - Mike: Update project timeline with new requirements
+        - Lisa: Schedule user testing sessions for mobile app
+        - Tom: Create technical debt assessment report
+        
+        Next Meeting: October 22, 2024 at 2:00 PM
+        """
+        
+        document = Document(
+            title="Project Alpha Meeting Notes - Q4 2024",
+            content=test_content.strip(),
+            file_type="meeting_notes",
+            source="test_creation"
+        )
+        
+        db.add(document)
+        db.flush()  # Get the ID
+        
+        # Process with AI
+        await process_document_ai(db, document)
+        
+        db.commit()
+        db.refresh(document)
+        
+        return {
+            "message": "Test document created successfully",
+            "document_id": document.id,
+            "title": document.title,
+            "summary": document.summary,
+            "tags": document.tags,
+            "entities": document.entities
+        }
+        
+    except Exception as e:
+        db.rollback()
+        return {"error": f"Failed to create test document: {str(e)}"}
 
 if __name__ == "__main__":
     import uvicorn
