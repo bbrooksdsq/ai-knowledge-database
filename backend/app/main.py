@@ -9,6 +9,7 @@ from .models.document import Document
 from .api import documents
 from .api.documents import process_document_ai
 from .api import transcription
+from .api import teams
 import os
 import logging
 
@@ -50,6 +51,12 @@ app.include_router(
     transcription.router,
     prefix=f"{settings.API_V1_STR}/transcription",
     tags=["transcription"]
+)
+
+app.include_router(
+    teams.router,
+    prefix=f"{settings.API_V1_STR}/teams",
+    tags=["teams"]
 )
 
 @app.on_event("startup")

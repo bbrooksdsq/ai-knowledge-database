@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     # OpenAI
     OPENAI_API_KEY: Optional[str] = None
     
+    # Microsoft Teams Integration
+    TEAMS_CLIENT_ID: Optional[str] = None
+    TEAMS_CLIENT_SECRET: Optional[str] = None
+    TEAMS_TENANT_ID: Optional[str] = None
+    
     # Security
     SECRET_KEY: str = "your-secret-key-change-in-production"
     ALGORITHM: str = "HS256"

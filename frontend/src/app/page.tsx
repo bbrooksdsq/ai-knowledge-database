@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Upload, FileText, Clock, Tag, Mic } from 'lucide-react'
+import { Search, Upload, FileText, Clock, Tag, Mic, Users } from 'lucide-react'
 import SearchInterface from '../components/SearchInterface'
 import DocumentUpload from '../components/DocumentUpload'
 import RecentDocuments from '../components/RecentDocuments'
 import AudioTranscription from '../components/AudioTranscription'
+import TeamsIntegration from '../components/TeamsIntegration'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('search')
@@ -72,6 +73,17 @@ export default function Home() {
               Transcribe
             </button>
             <button
+              onClick={() => setActiveTab('teams')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'teams'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Users className="w-4 h-4 inline mr-2" />
+              Teams
+            </button>
+            <button
               onClick={() => setActiveTab('recent')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'recent'
@@ -91,6 +103,7 @@ export default function Home() {
         {activeTab === 'search' && <SearchInterface />}
         {activeTab === 'upload' && <DocumentUpload />}
         {activeTab === 'transcribe' && <AudioTranscription />}
+        {activeTab === 'teams' && <TeamsIntegration />}
         {activeTab === 'recent' && <RecentDocuments />}
       </main>
 
