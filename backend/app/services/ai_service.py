@@ -13,8 +13,10 @@ except ImportError:
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
+    logger.info("✅ sentence-transformers available for local embeddings")
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
+    logger.warning("⚠️ sentence-transformers not available - will use OpenAI embeddings only")
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ class AIService:
         """Generate embedding for text using OpenAI or local model"""
         try:
             if settings.OPENAI_API_KEY:
+                logger.debug("Using OpenAI embeddings")
                 response = await self.openai_client.embeddings.acreate(
                     model="text-embedding-ada-002",
                     input=text
@@ -45,6 +48,7 @@ class AIService:
                 return response.data[0].embedding
             else:
                 # Use local model as fallback
+                logger.debug("OpenAI API key not set, trying local model")
                 model = self._get_embedding_model()
                 if model is not None:
                     embedding = model.encode(text)
@@ -55,6 +59,7 @@ class AIService:
             logger.warning(f"OpenAI embedding failed, trying local model: {e}")
             model = self._get_embedding_model()
             if model is not None:
+                logger.info("Using local sentence-transformers model for embeddings")
                 embedding = model.encode(text)
                 return embedding.tolist()
             else:

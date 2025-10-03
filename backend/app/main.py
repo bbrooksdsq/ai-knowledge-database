@@ -135,6 +135,41 @@ async def api_test():
     """Test API connectivity"""
     return {"status": "API working", "database": "connected", "openai": "configured"}
 
+@app.get("/api/status")
+async def get_status():
+    """Get system status and AI capabilities"""
+    from .services.ai_service import ai_service, NUMPY_AVAILABLE, SENTENCE_TRANSFORMERS_AVAILABLE
+    
+    status = {
+        "api": "healthy",
+        "database": "connected",
+        "ai_capabilities": {
+            "openai_api": bool(settings.OPENAI_API_KEY),
+            "numpy": NUMPY_AVAILABLE,
+            "sentence_transformers": SENTENCE_TRANSFORMERS_AVAILABLE,
+            "local_embeddings": SENTENCE_TRANSFORMERS_AVAILABLE,
+            "similarity_calculation": NUMPY_AVAILABLE
+        },
+        "features": {
+            "document_upload": True,
+            "semantic_search": bool(settings.OPENAI_API_KEY) or SENTENCE_TRANSFORMERS_AVAILABLE,
+            "keyword_search": True,
+            "ai_summaries": bool(settings.OPENAI_API_KEY),
+            "ai_tags": bool(settings.OPENAI_API_KEY),
+            "ai_entities": bool(settings.OPENAI_API_KEY)
+        }
+    }
+    
+    # Test embedding model availability
+    if SENTENCE_TRANSFORMERS_AVAILABLE:
+        try:
+            model = ai_service._get_embedding_model()
+            status["ai_capabilities"]["local_model_loaded"] = model is not None
+        except Exception as e:
+            status["ai_capabilities"]["local_model_error"] = str(e)
+    
+    return status
+
 @app.post("/api/test/document")
 async def create_test_document(db: Session = Depends(get_db)):
     """Create a test document to demonstrate AI processing"""

@@ -25,16 +25,18 @@ httpx==0.25.2
 redis==5.0.1
 celery==5.3.4
 
+# Optional ML dependencies (fallback for embeddings)
+numpy==1.25.2
+sentence-transformers>=2.3.0
+huggingface_hub>=0.19.0,<0.20.0
+
 # Development and testing
 pytest==7.4.3
 pytest-asyncio==0.21.1
 
-# Still removing heavy ML dependencies for now
-# numpy==1.25.2
+# Optional advanced features (commented out to avoid build timeouts)
 # langchain==0.0.340
 # langchain-openai==0.0.6
-# sentence-transformers>=2.3.0
-# huggingface_hub>=0.19.0,<0.20.0
 # python-jose[cryptography]==3.3.0
 # passlib[bcrypt]==1.7.4
 # alembic==1.12.1
