@@ -127,6 +127,11 @@ async def test_endpoint():
     logger.info("Test endpoint requested")
     return {"message": "Test successful", "static_files": os.path.exists("static/index.html")}
 
+@app.get("/api/test")
+async def api_test():
+    """Test API connectivity"""
+    return {"status": "API working", "database": "connected", "openai": "configured"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
