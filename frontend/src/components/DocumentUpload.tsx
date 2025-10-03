@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Upload, FileText, X, CheckCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from './ui/button'
 
 interface UploadedFile {
   file: File
@@ -60,7 +60,7 @@ export default function DocumentUpload() {
       formData.append('source', 'upload')
       formData.append('file', file.file)
 
-      const response = await fetch('/api/documents/', {
+      const response = await fetch('/api/v1/documents/', {
         method: 'POST',
         body: formData,
       })

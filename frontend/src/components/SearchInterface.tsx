@@ -38,7 +38,7 @@ export default function SearchInterface() {
 
     setLoading(true)
     try {
-      const endpoint = searchType === 'semantic' ? '/api/documents/search' : '/api/documents/search/keyword'
+      const endpoint = searchType === 'semantic' ? '/api/v1/documents/search' : '/api/v1/documents/search/keyword'
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
