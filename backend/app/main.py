@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from .core.config import settings
+from .core.database import engine
+from .models import document
 from .api import documents
 import os
 import logging
@@ -48,6 +50,14 @@ async def startup_event():
         logger.info("✅ Static files found")
     else:
         logger.warning("❌ Static files not found")
+    
+    # Initialize database tables
+    try:
+        document.Base.metadata.create_all(bind=engine)
+        logger.info("✅ Database tables initialized")
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+    
     logger.info("🎉 Application is ready to accept requests!")
 
 @app.on_event("shutdown")

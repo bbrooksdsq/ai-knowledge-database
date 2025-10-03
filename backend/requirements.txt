@@ -21,11 +21,15 @@ python-dotenv==1.0.0
 # HTTP client
 httpx==0.25.2
 
-# Remove heavy dependencies that cause build timeouts
-# redis==5.0.1
-# celery==5.3.4
-# pytest==7.4.3
-# pytest-asyncio==0.21.1
+# Background tasks and caching
+redis==5.0.1
+celery==5.3.4
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Still removing heavy ML dependencies for now
 # numpy==1.25.2
 # langchain==0.0.340
 # langchain-openai==0.0.6
