@@ -1,9 +1,20 @@
 import openai
 from typing import List, Dict, Any, Optional
 from ..core.config import settings
-import numpy as np
-from sentence_transformers import SentenceTransformer
 import logging
+
+# Try to import optional dependencies
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -15,12 +26,11 @@ class AIService:
     
     def _get_embedding_model(self):
         """Lazy load the embedding model"""
-        if self.embedding_model is None:
+        if self.embedding_model is None and SENTENCE_TRANSFORMERS_AVAILABLE:
             try:
-                from sentence_transformers import SentenceTransformer
                 self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-            except ImportError:
-                logger.warning("sentence-transformers not available, will use OpenAI embeddings only")
+            except Exception as e:
+                logger.warning(f"Failed to load sentence transformer: {e}")
                 self.embedding_model = None
         return self.embedding_model
     
@@ -133,6 +143,20 @@ class AIService:
     
     def calculate_similarity(self, embedding1: List[float], embedding2: List[float]) -> float:
         """Calculate cosine similarity between two embeddings"""
+        if not NUMPY_AVAILABLE:
+            # Simple fallback without numpy
+            if len(embedding1) != len(embedding2):
+                return 0.0
+            
+            dot_product = sum(a * b for a, b in zip(embedding1, embedding2))
+            norm1 = sum(a * a for a in embedding1) ** 0.5
+            norm2 = sum(b * b for b in embedding2) ** 0.5
+            
+            if norm1 == 0 or norm2 == 0:
+                return 0.0
+            
+            return dot_product / (norm1 * norm2)
+        
         try:
             vec1 = np.array(embedding1)
             vec2 = np.array(embedding2)
