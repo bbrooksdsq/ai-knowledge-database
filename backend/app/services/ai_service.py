@@ -10,6 +10,8 @@ try:
 except ImportError:
     NUMPY_AVAILABLE = False
 
+logger = logging.getLogger(__name__)
+
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
@@ -17,8 +19,6 @@ try:
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
     logger.warning("⚠️ sentence-transformers not available - will use OpenAI embeddings only")
-
-logger = logging.getLogger(__name__)
 
 class AIService:
     def __init__(self):
@@ -177,6 +177,72 @@ class AIService:
         except Exception as e:
             logger.error(f"Similarity calculation failed: {e}")
             return 0.0
+    
+    async def transcribe_audio(self, audio_file_path: str) -> str:
+        """Transcribe audio file using OpenAI Whisper API"""
+        try:
+            if not settings.OPENAI_API_KEY:
+                raise Exception("OpenAI API key not configured for transcription")
+            
+            logger.info(f"Transcribing audio file: {audio_file_path}")
+            
+            with open(audio_file_path, "rb") as audio_file:
+                transcript = await self.openai_client.audio.transcriptions.acreate(
+                    model="whisper-1",
+                    file=audio_file,
+                    response_format="text"
+                )
+            
+            logger.info(f"Transcription completed, length: {len(transcript)} characters")
+            return transcript.strip()
+            
+        except Exception as e:
+            logger.error(f"Audio transcription failed: {e}")
+            raise Exception(f"Transcription failed: {str(e)}")
+    
+    async def transcribe_audio_with_speakers(self, audio_file_path: str) -> dict:
+        """Transcribe audio with speaker identification (using Whisper + GPT for speaker detection)"""
+        try:
+            # First get the basic transcription
+            transcript = await self.transcribe_audio(audio_file_path)
+            
+            # Use GPT to identify speakers and format the transcript
+            if settings.OPENAI_API_KEY:
+                response = await self.openai_client.chat.completions.acreate(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {
+                            "role": "system", 
+                            "content": "You are a meeting transcript analyzer. Format the transcript to identify different speakers. Use Speaker 1, Speaker 2, etc. for each person. Add timestamps if possible. Return as JSON with format: {'transcript': 'formatted text', 'speakers': ['Speaker 1', 'Speaker 2'], 'summary': 'brief meeting summary'}"
+                        },
+                        {
+                            "role": "user", 
+                            "content": f"Please format this meeting transcript with speaker identification:\n\n{transcript}"
+                        }
+                    ],
+                    temperature=0.3
+                )
+                
+                import json
+                formatted_result = json.loads(response.choices[0].message.content)
+                return formatted_result
+            else:
+                # Fallback to basic transcript
+                return {
+                    "transcript": transcript,
+                    "speakers": ["Speaker 1"],
+                    "summary": "Meeting transcript (speaker identification requires OpenAI API)"
+                }
+                
+        except Exception as e:
+            logger.error(f"Speaker identification failed: {e}")
+            # Return basic transcript on error
+            transcript = await self.transcribe_audio(audio_file_path)
+            return {
+                "transcript": transcript,
+                "speakers": ["Speaker 1"],
+                "summary": f"Meeting transcript (speaker identification failed: {str(e)})"
+            }
 
 
 # Global instance

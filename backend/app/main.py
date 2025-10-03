@@ -8,6 +8,7 @@ from .models import document
 from .models.document import Document
 from .api import documents
 from .api.documents import process_document_ai
+from .api import transcription
 import os
 import logging
 
@@ -43,6 +44,12 @@ app.include_router(
     documents.router,
     prefix=f"{settings.API_V1_STR}/documents",
     tags=["documents"]
+)
+
+app.include_router(
+    transcription.router,
+    prefix=f"{settings.API_V1_STR}/transcription",
+    tags=["transcription"]
 )
 
 @app.on_event("startup")
