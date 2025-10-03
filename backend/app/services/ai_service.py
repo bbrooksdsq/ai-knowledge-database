@@ -16,7 +16,12 @@ class AIService:
     def _get_embedding_model(self):
         """Lazy load the embedding model"""
         if self.embedding_model is None:
-            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            try:
+                from sentence_transformers import SentenceTransformer
+                self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            except ImportError:
+                logger.warning("sentence-transformers not available, will use OpenAI embeddings only")
+                self.embedding_model = None
         return self.embedding_model
     
     async def generate_embedding(self, text: str) -> List[float]:
@@ -31,13 +36,19 @@ class AIService:
             else:
                 # Use local model as fallback
                 model = self._get_embedding_model()
+                if model is not None:
+                    embedding = model.encode(text)
+                    return embedding.tolist()
+                else:
+                    raise Exception("No embedding model available - OpenAI API key not set and sentence-transformers not installed")
+        except Exception as e:
+            logger.warning(f"OpenAI embedding failed, trying local model: {e}")
+            model = self._get_embedding_model()
+            if model is not None:
                 embedding = model.encode(text)
                 return embedding.tolist()
-        except Exception as e:
-            logger.warning(f"OpenAI embedding failed, using local model: {e}")
-            model = self._get_embedding_model()
-            embedding = model.encode(text)
-            return embedding.tolist()
+            else:
+                raise Exception("No embedding model available - OpenAI API key not set and sentence-transformers not installed")
     
     async def generate_summary(self, text: str, max_length: int = 200) -> str:
         """Generate a summary of the text using OpenAI"""
