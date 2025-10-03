@@ -18,4 +18,18 @@ fi
 # Start FastAPI backend directly on Railway's port
 cd /app
 echo "🌐 Starting FastAPI on port $PORT..."
+echo "🔍 Testing if port $PORT is accessible..."
+python -c "
+import socket
+import sys
+try:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('0.0.0.0', int('$PORT')))
+    sock.listen(1)
+    print('✅ Port $PORT is available')
+    sock.close()
+except Exception as e:
+    print(f'❌ Port $PORT error: {e}')
+    sys.exit(1)
+"
 python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
