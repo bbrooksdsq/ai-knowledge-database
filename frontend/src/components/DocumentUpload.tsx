@@ -55,7 +55,6 @@ export default function DocumentUpload() {
     try {
       const formData = new FormData()
       formData.append('title', file.file.name)
-      formData.append('content', 'Document content will be extracted automatically')
       formData.append('file_type', getFileType(file.file.name))
       formData.append('source', 'upload')
       formData.append('file', file.file)

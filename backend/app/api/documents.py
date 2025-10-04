@@ -14,10 +14,29 @@ from ..core.config import settings
 
 router = APIRouter()
 
+async def extract_file_content(file_path: str, file_type: str) -> str:
+    """Extract text content from uploaded files"""
+    try:
+        if file_type.lower() == 'txt':
+            async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
+                return await f.read()
+        elif file_type.lower() in ['pdf']:
+            # For now, return a placeholder for PDF files
+            # In production, you'd use libraries like PyPDF2 or pdfplumber
+            return f"PDF file content extraction not yet implemented for {file_path}"
+        elif file_type.lower() in ['docx', 'doc']:
+            # For now, return a placeholder for Word files
+            # In production, you'd use libraries like python-docx
+            return f"Word document content extraction not yet implemented for {file_path}"
+        else:
+            return f"File uploaded: {os.path.basename(file_path)} ({file_type})"
+    except Exception as e:
+        return f"Error extracting content from {file_path}: {str(e)}"
+
 @router.post("/", response_model=DocumentSchema)
 async def create_document(
     title: str = Form(...),
-    content: str = Form(...),
+    content: Optional[str] = Form(None),
     file_type: str = Form(...),
     source: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
@@ -43,6 +62,14 @@ async def create_document(
                 content_bytes = await file.read()
                 await f.write(content_bytes)
                 file_size = len(content_bytes)
+            
+            # Extract content from file if not provided
+            if not content:
+                content = await extract_file_content(file_path, file_type)
+        
+        # If no content and no file, use a default message
+        if not content:
+            content = f"Document: {title}"
         
         # Create document
         document = Document(
