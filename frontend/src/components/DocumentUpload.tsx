@@ -18,7 +18,11 @@ export default function DocumentUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFiles = (selectedFiles: FileList | null) => {
-    if (!selectedFiles) return
+    console.log('handleFiles called with:', selectedFiles)
+    if (!selectedFiles) {
+      console.log('No files provided')
+      return
+    }
 
     const newFiles = Array.from(selectedFiles).map(file => ({
       file,
@@ -27,19 +31,27 @@ export default function DocumentUpload() {
       progress: 0,
     }))
 
+    console.log('Created new files:', newFiles)
     setFiles(prev => [...prev, ...newFiles])
 
-    // Simulate upload process
+    // Start upload for each file
     newFiles.forEach(fileItem => {
+      console.log('Starting upload for file:', fileItem.id, fileItem.file.name)
       uploadFile(fileItem.id)
     })
   }
 
   const uploadFile = async (fileId: string) => {
+    console.log('uploadFile called with fileId:', fileId)
     const fileIndex = files.findIndex(f => f.id === fileId)
-    if (fileIndex === -1) return
+    console.log('Found file index:', fileIndex, 'in files array:', files)
+    if (fileIndex === -1) {
+      console.log('File not found in state')
+      return
+    }
 
     const file = files[fileIndex]
+    console.log('Processing file:', file.file.name)
     
     // Set initial progress
     setFiles(prev => prev.map(f => 
