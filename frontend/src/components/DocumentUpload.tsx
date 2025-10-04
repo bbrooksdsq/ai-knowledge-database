@@ -56,8 +56,11 @@ export default function DocumentUpload() {
       formData.append('file', file.file)
 
       console.log('Starting upload for:', file.file.name)
+      console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      console.log('Final API URL:', `${apiUrl}/api/v1/documents/`)
+      
       const response = await fetch(`${apiUrl}/api/v1/documents/`, {
         method: 'POST',
         body: formData,
@@ -173,6 +176,18 @@ export default function DocumentUpload() {
               className="px-8"
             >
               Choose Files
+            </Button>
+            
+            <Button
+              onClick={() => {
+                console.log('Test button clicked!')
+                console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
+                alert('Test button works! Check console for API URL.')
+              }}
+              variant="outline"
+              className="px-8"
+            >
+              Test JavaScript & API URL
             </Button>
             <input
               ref={fileInputRef}
