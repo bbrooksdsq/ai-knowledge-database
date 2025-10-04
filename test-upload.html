@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+</head>
+<body>
+    <h1>Simple Upload Test</h1>
+    <input type="file" id="fileInput" multiple>
+    <button onclick="testUpload()">Test Upload</button>
+    <div id="result"></div>
+
+    <script>
+        async function testUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const result = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                result.innerHTML = 'Please select a file first';
+                return;
+            }
+            
+            result.innerHTML = 'Uploading...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('title', fileInput.files[0].name);
+                formData.append('file_type', 'txt');
+                formData.append('source', 'test');
+                formData.append('file', fileInput.files[0]);
+                
+                const response = await fetch('https://ai-knowledge-database-production.up.railway.app/api/v1/documents/', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = 'SUCCESS: ' + JSON.stringify(data, null, 2);
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = 'ERROR: ' + response.status + ' - ' + error;
+                }
+            } catch (error) {
+                result.innerHTML = 'NETWORK ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
