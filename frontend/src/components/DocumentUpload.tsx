@@ -41,16 +41,12 @@ export default function DocumentUpload() {
 
     const file = files[fileIndex]
     
-    // Simulate progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      setTimeout(() => {
-        setFiles(prev => prev.map(f => 
-          f.id === fileId 
-            ? { ...f, progress }
-            : f
-        ))
-      }, progress * 50)
-    }
+    // Set initial progress
+    setFiles(prev => prev.map(f => 
+      f.id === fileId 
+        ? { ...f, progress: 10 }
+        : f
+    ))
 
     try {
       const formData = new FormData()
@@ -59,24 +55,33 @@ export default function DocumentUpload() {
       formData.append('source', 'upload')
       formData.append('file', file.file)
 
+      console.log('Starting upload for:', file.file.name)
+      
       const response = await fetch('/api/v1/documents/', {
         method: 'POST',
         body: formData,
       })
 
+      console.log('Upload response status:', response.status)
+      
       if (response.ok) {
+        const result = await response.json()
+        console.log('Upload successful:', result)
         setFiles(prev => prev.map(f => 
           f.id === fileId 
             ? { ...f, status: 'success', progress: 100 }
             : f
         ))
       } else {
-        throw new Error('Upload failed')
+        const errorText = await response.text()
+        console.error('Upload failed:', response.status, errorText)
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
     } catch (error) {
+      console.error('Upload error:', error)
       setFiles(prev => prev.map(f => 
         f.id === fileId 
-          ? { ...f, status: 'error', error: 'Upload failed' }
+          ? { ...f, status: 'error', error: error.message || 'Upload failed' }
           : f
       ))
     }
