@@ -79,9 +79,10 @@ export default function DocumentUpload() {
       }
     } catch (error) {
       console.error('Upload error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed'
       setFiles(prev => prev.map(f => 
         f.id === fileId 
-          ? { ...f, status: 'error', error: error.message || 'Upload failed' }
+          ? { ...f, status: 'error', error: errorMessage }
           : f
       ))
     }
