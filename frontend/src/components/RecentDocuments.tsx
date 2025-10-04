@@ -23,7 +23,7 @@ export default function RecentDocuments() {
 
   const fetchRecentDocuments = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-knowledge-database-production.up.railway.app'
       const response = await fetch(`${apiUrl}/api/v1/documents/?limit=20`)
       if (response.ok) {
         const data = await response.json()

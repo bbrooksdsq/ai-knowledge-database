@@ -58,7 +58,7 @@ export default function DocumentUpload() {
       console.log('Starting upload for:', file.file.name)
       console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-knowledge-database-production.up.railway.app'
       console.log('Final API URL:', `${apiUrl}/api/v1/documents/`)
       
       const response = await fetch(`${apiUrl}/api/v1/documents/`, {

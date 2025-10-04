@@ -38,7 +38,7 @@ export default function SearchInterface() {
 
     setLoading(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-knowledge-database-production.up.railway.app'
       const endpoint = searchType === 'semantic' ? '/api/v1/documents/search' : '/api/v1/documents/search/keyword'
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
