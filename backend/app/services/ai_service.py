@@ -40,7 +40,7 @@ class AIService:
         """Generate embedding for text using OpenAI or local model"""
         try:
             if settings.OPENAI_API_KEY:
-                logger.debug("Using OpenAI embeddings")
+                logger.info("Using OpenAI embeddings for faster processing")
                 response = await self.openai_client.embeddings.acreate(
                     model="text-embedding-ada-002",
                     input=text
@@ -48,7 +48,7 @@ class AIService:
                 return response.data[0].embedding
             else:
                 # Use local model as fallback
-                logger.debug("OpenAI API key not set, trying local model")
+                logger.warning("OpenAI API key not set, using local model (slower)")
                 model = self._get_embedding_model()
                 if model is not None:
                     embedding = model.encode(text)
@@ -56,14 +56,12 @@ class AIService:
                 else:
                     raise Exception("No embedding model available - OpenAI API key not set and sentence-transformers not installed")
         except Exception as e:
-            logger.warning(f"OpenAI embedding failed, trying local model: {e}")
-            model = self._get_embedding_model()
-            if model is not None:
-                logger.info("Using local sentence-transformers model for embeddings")
-                embedding = model.encode(text)
-                return embedding.tolist()
+            logger.error(f"OpenAI embedding failed: {e}")
+            # Don't fallback to local model automatically - it's too slow
+            if settings.OPENAI_API_KEY:
+                raise Exception(f"OpenAI embedding failed: {str(e)}. Please check your API key and try again.")
             else:
-                raise Exception("No embedding model available - OpenAI API key not set and sentence-transformers not installed")
+                raise Exception("OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.")
     
     async def generate_summary(self, text: str, max_length: int = 200) -> str:
         """Generate a summary of the text using OpenAI"""
