@@ -38,8 +38,9 @@ export default function SearchInterface() {
 
     setLoading(true)
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
       const endpoint = searchType === 'semantic' ? '/api/v1/documents/search' : '/api/v1/documents/search/keyword'
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

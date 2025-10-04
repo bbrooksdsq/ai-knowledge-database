@@ -57,7 +57,8 @@ export default function DocumentUpload() {
 
       console.log('Starting upload for:', file.file.name)
       
-      const response = await fetch('/api/v1/documents/', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+      const response = await fetch(`${apiUrl}/api/v1/documents/`, {
         method: 'POST',
         body: formData,
       })
