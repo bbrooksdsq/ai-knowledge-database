@@ -41,7 +41,7 @@ class AIService:
         try:
             if settings.OPENAI_API_KEY:
                 logger.info("Using OpenAI embeddings for faster processing")
-                response = await self.openai_client.embeddings.acreate(
+                response = await self.openai_client.embeddings.create(
                     model="text-embedding-ada-002",
                     input=text
                 )
@@ -70,7 +70,7 @@ class AIService:
                 # Simple truncation fallback
                 return text[:max_length] + "..." if len(text) > max_length else text
             
-            response = await self.openai_client.chat.completions.acreate(
+            response = await self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that creates concise summaries of text content."},
@@ -91,7 +91,7 @@ class AIService:
                 # Simple keyword extraction fallback
                 return self._extract_keywords(text)
             
-            response = await self.openai_client.chat.completions.acreate(
+            response = await self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that extracts relevant tags from text. Return only a comma-separated list of tags, no other text."},
@@ -112,7 +112,7 @@ class AIService:
             if not settings.OPENAI_API_KEY:
                 return {"people": [], "dates": [], "projects": []}
             
-            response = await self.openai_client.chat.completions.acreate(
+            response = await self.openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that extracts structured information from text. Return a JSON object with keys: people, dates, projects, topics."},
@@ -185,7 +185,7 @@ class AIService:
             logger.info(f"Transcribing audio file: {audio_file_path}")
             
             with open(audio_file_path, "rb") as audio_file:
-                transcript = await self.openai_client.audio.transcriptions.acreate(
+                transcript = await self.openai_client.audio.transcriptions.create(
                     model="whisper-1",
                     file=audio_file,
                     response_format="text"
@@ -206,7 +206,7 @@ class AIService:
             
             # Use GPT to identify speakers and format the transcript
             if settings.OPENAI_API_KEY:
-                response = await self.openai_client.chat.completions.acreate(
+                response = await self.openai_client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
                         {
